@@ -22,58 +22,63 @@ import splitties.views.imageResource
 @SuppressLint("ViewConstructor")
 class TextKeyboard(
     context: Context,
-    theme: Theme
-) : BaseKeyboard(context, theme, Layout) {
+    theme: Theme,
+    swipeOverrides: Map<String, String> = emptyMap()
+) : BaseKeyboard(context, theme, layout(swipeOverrides)) {
 
     enum class CapsState { None, Once, Lock }
 
     companion object {
         const val Name = "Text"
 
-        val Layout: List<List<KeyDef>> = listOf(
-            listOf(
-                AlphabetKey("Q", "1"),
-                AlphabetKey("W", "2"),
-                AlphabetKey("E", "3"),
-                AlphabetKey("R", "4"),
-                AlphabetKey("T", "5"),
-                AlphabetKey("Y", "6"),
-                AlphabetKey("U", "7"),
-                AlphabetKey("I", "8"),
-                AlphabetKey("O", "9"),
-                AlphabetKey("P", "0")
-            ),
-            listOf(
-                AlphabetKey("A", "@"),
-                AlphabetKey("S", "*"),
-                AlphabetKey("D", "+"),
-                AlphabetKey("F", "-"),
-                AlphabetKey("G", "="),
-                AlphabetKey("H", "/"),
-                AlphabetKey("J", "#"),
-                AlphabetKey("K", "("),
-                AlphabetKey("L", ")")
-            ),
-            listOf(
-                CapsKey(),
-                AlphabetKey("Z", "'"),
-                AlphabetKey("X", ":"),
-                AlphabetKey("C", "\""),
-                AlphabetKey("V", "?"),
-                AlphabetKey("B", "!"),
-                AlphabetKey("N", "~"),
-                AlphabetKey("M", "\\"),
-                BackspaceKey()
-            ),
-            listOf(
-                LayoutSwitchKey("?123", ""),
-                CommaKey(0.1f, KeyDef.Appearance.Variant.Alternative),
-                LanguageKey(),
-                SpaceKey(),
-                SymbolKey(".", 0.1f, KeyDef.Appearance.Variant.Alternative),
-                ReturnKey()
+        fun layout(swipeOverrides: Map<String, String>): List<List<KeyDef>> {
+            fun alt(key: String, fallback: String) = swipeOverrides[key] ?: fallback
+
+            return listOf(
+                listOf(
+                    AlphabetKey("Q", alt("Q", "1")),
+                    AlphabetKey("W", alt("W", "2")),
+                    AlphabetKey("E", alt("E", "3")),
+                    AlphabetKey("R", alt("R", "4")),
+                    AlphabetKey("T", alt("T", "5")),
+                    AlphabetKey("Y", alt("Y", "6")),
+                    AlphabetKey("U", alt("U", "7")),
+                    AlphabetKey("I", alt("I", "8")),
+                    AlphabetKey("O", alt("O", "9")),
+                    AlphabetKey("P", alt("P", "0"))
+                ),
+                listOf(
+                    AlphabetKey("A", alt("A", "\\")),
+                    AlphabetKey("S", alt("S", "!")),
+                    AlphabetKey("D", alt("D", "@")),
+                    AlphabetKey("F", alt("F", "+")),
+                    AlphabetKey("G", alt("G", "%")),
+                    AlphabetKey("H", alt("H", "\"")),
+                    AlphabetKey("J", alt("J", "=")),
+                    AlphabetKey("K", alt("K", "*")),
+                    AlphabetKey("L", alt("L", "?"))
+                ),
+                listOf(
+                    CapsKey(),
+                    AlphabetKey("Z", alt("Z", "(")),
+                    AlphabetKey("X", alt("X", ")")),
+                    AlphabetKey("C", alt("C", "-")),
+                    AlphabetKey("V", alt("V", "_")),
+                    AlphabetKey("B", alt("B", ":")),
+                    AlphabetKey("N", alt("N", ";")),
+                    AlphabetKey("M", alt("M", "/")),
+                    BackspaceKey()
+                ),
+                listOf(
+                    LayoutSwitchKey("?123", ""),
+                    CommaKey(0.1f, KeyDef.Appearance.Variant.Alternative),
+                    LanguageKey(),
+                    SpaceKey(),
+                    SymbolKey(".", 0.1f, KeyDef.Appearance.Variant.Alternative),
+                    ReturnKey()
+                )
             )
-        )
+        }
     }
 
     val caps: ImageKeyView by lazy { findViewById(R.id.button_caps) }

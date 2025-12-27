@@ -44,6 +44,9 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     private val popup: PopupComponent by manager.must()
     private val bar: KawaiiBarComponent by manager.must()
     private val returnKeyDrawable: ReturnKeyDrawableComponent by manager.must()
+    private val swipeSymbolOverrides = SwipeSymbolOverrides.parse(
+        AppPrefs.getInstance().keyboard.swipeSymbolOverrides.getValue()
+    )
 
     companion object : EssentialWindow.Key
 
@@ -67,7 +70,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
 
     private val keyboards: HashMap<String, BaseKeyboard> by lazy {
         hashMapOf(
-            TextKeyboard.Name to TextKeyboard(context, theme),
+            TextKeyboard.Name to TextKeyboard(context, theme, swipeSymbolOverrides),
             NumberKeyboard.Name to NumberKeyboard(context, theme)
         )
     }

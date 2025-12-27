@@ -148,8 +148,19 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         val swipeSymbolDirection = enumList(
             R.string.swipe_symbol_behavior,
             "swipe_symbol_behavior",
-            SwipeSymbolDirection.Down
+            SwipeSymbolDirection.Up
         )
+        init {
+            // Force legacy installs that defaulted to Down to use Up so swipe alt requires upward swipe.
+            if (swipeSymbolDirection.getValue() == SwipeSymbolDirection.Down) {
+                swipeSymbolDirection.setValue(SwipeSymbolDirection.Up)
+            }
+        }
+        val swipeSymbolOverrides = ManagedPreference.PString(
+            sharedPreferences,
+            "swipe_symbol_overrides",
+            ""
+        ).apply { register() }
         val longPressDelay = int(
             R.string.keyboard_long_press_delay,
             "keyboard_long_press_delay",

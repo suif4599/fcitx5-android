@@ -100,8 +100,13 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
     val punctuationPosition = enumList(
         R.string.punctuation_position,
         "punctuation_position",
-        PunctuationPosition.Bottom
-    )
+        PunctuationPosition.TopRight
+    ).apply {
+        // migrate legacy default (Bottom) to TopRight so swipe symbols render above the letter
+        if (getValue() == PunctuationPosition.Bottom) {
+            setValue(PunctuationPosition.TopRight)
+        }
+    }
 
     enum class NavbarBackground(override val stringRes: Int) : ManagedPreferenceEnum {
         None(R.string.navbar_bkg_none),
