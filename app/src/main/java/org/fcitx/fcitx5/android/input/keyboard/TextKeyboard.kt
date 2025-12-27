@@ -71,8 +71,8 @@ class TextKeyboard(
                 ),
                 listOf(
                     LayoutSwitchKey("?123", ""),
+                    TabKey(),
                     CommaKey(0.1f, KeyDef.Appearance.Variant.Alternative),
-                    LanguageKey(),
                     SpaceKey(),
                     SymbolKey(".", 0.1f, KeyDef.Appearance.Variant.Alternative),
                     ReturnKey()
@@ -84,23 +84,10 @@ class TextKeyboard(
     val caps: ImageKeyView by lazy { findViewById(R.id.button_caps) }
     val backspace: ImageKeyView by lazy { findViewById(R.id.button_backspace) }
     val quickphrase: ImageKeyView by lazy { findViewById(R.id.button_quickphrase) }
-    val lang: ImageKeyView by lazy { findViewById(R.id.button_lang) }
     val space: TextKeyView by lazy { findViewById(R.id.button_space) }
     val `return`: ImageKeyView by lazy { findViewById(R.id.button_return) }
 
-    private val showLangSwitchKey = AppPrefs.getInstance().keyboard.showLangSwitchKey
-
-    @Keep
-    private val showLangSwitchKeyListener = ManagedPreference.OnChangeListener<Boolean> { _, v ->
-        updateLangSwitchKey(v)
-    }
-
     private val keepLettersUppercase by AppPrefs.getInstance().keyboard.keepLettersUppercase
-
-    init {
-        updateLangSwitchKey(showLangSwitchKey.getValue())
-        showLangSwitchKey.registerOnChangeListener(showLangSwitchKeyListener)
-    }
 
     private val textKeys: List<TextKeyView> by lazy {
         allViews.filterIsInstance(TextKeyView::class.java).toList()
@@ -225,10 +212,6 @@ class TextKeyboard(
                 CapsState.Lock -> R.drawable.ic_capslock_lock
             }
         }
-    }
-
-    private fun updateLangSwitchKey(visible: Boolean) {
-        lang.visibility = if (visible) View.VISIBLE else View.GONE
     }
 
     private fun updateAlphabetKeys() {

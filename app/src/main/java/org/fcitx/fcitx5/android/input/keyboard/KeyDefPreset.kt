@@ -204,6 +204,21 @@ class LanguageKey : KeyDef(
     )
 )
 
+class TabKey(
+    percentWidth: Float = 0.1f,
+    variant: Variant = Variant.Alternative
+) : KeyDef(
+    Appearance.Text(
+        displayText = "T",
+        textSize = 18f,
+        percentWidth = percentWidth,
+        variant = variant
+    ),
+    setOf(
+        Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_Tab)))
+    )
+)
+
 class SpaceKey : KeyDef(
     Appearance.Text(
         displayText = " ",
