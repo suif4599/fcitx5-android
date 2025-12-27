@@ -23,6 +23,17 @@ import org.mechdancer.dependency.manager.must
 class TextEditingWindow : InputWindow.ExtendedInputWindow<TextEditingWindow>(),
     InputBroadcastReceiver {
 
+    companion object {
+        // gate to allow intentional exits back to keyboard; default blocks auto detaches
+        internal var allowExitToKeyboard: Boolean = false
+        internal var isActive: Boolean = false
+
+        fun allowExitOnce(block: () -> Unit) {
+            allowExitToKeyboard = true
+            block()
+        }
+    }
+
     private val service: FcitxInputMethodService by manager.inputMethodService()
     private val windowManager: InputWindowManager by manager.must()
     private val theme by manager.theme()
@@ -102,10 +113,14 @@ class TextEditingWindow : InputWindow.ExtendedInputWindow<TextEditingWindow>(),
 
     override fun onAttached() {
         val range = service.currentInputSelection
+        isActive = true
         onSelectionUpdate(range.start, range.end)
     }
 
-    override fun onDetached() {}
+    override fun onDetached() {
+        isActive = false
+        allowExitToKeyboard = false
+    }
 
     override fun onSelectionUpdate(start: Int, end: Int) {
         hasSelection = start != end

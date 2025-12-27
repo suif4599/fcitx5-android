@@ -13,6 +13,8 @@ import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.input.broadcast.InputBroadcastReceiver
 import org.fcitx.fcitx5.android.input.broadcast.InputBroadcaster
+import org.fcitx.fcitx5.android.input.editing.TextEditingWindow
+import org.fcitx.fcitx5.android.input.keyboard.KeyboardWindow
 import org.fcitx.fcitx5.android.input.dependency.UniqueViewComponent
 import org.fcitx.fcitx5.android.input.dependency.context
 import org.mechdancer.dependency.DynamicScope
@@ -113,6 +115,14 @@ class InputWindowManager : UniqueViewComponent<InputWindowManager, FrameLayout>(
      * [attachWindow] includes the operation done by [addEssentialWindow].
      */
     fun attachWindow(window: InputWindow) {
+        if (currentWindow is TextEditingWindow && window is KeyboardWindow && !TextEditingWindow.allowExitToKeyboard) {
+            Timber.d("Skip auto exit from TextEditingWindow; require explicit return button")
+            return
+        }
+        // reset gate regardless of target once a switch is attempted
+        if (TextEditingWindow.allowExitToKeyboard && window !is TextEditingWindow) {
+            TextEditingWindow.allowExitToKeyboard = false
+        }
         if (window === currentWindow)
             Timber.d("Skip attaching $window")
         val newView = if (window is EssentialWindow) {
