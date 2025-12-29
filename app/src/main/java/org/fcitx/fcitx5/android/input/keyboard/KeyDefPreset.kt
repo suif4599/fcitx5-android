@@ -22,7 +22,9 @@ class SymbolKey(
     val symbol: String,
     percentWidth: Float = 0.1f,
     variant: Variant = Variant.Normal,
-    popup: Array<Popup>? = null
+    popup: Array<Popup>? = null,
+    swipeAscii: String? = null,
+    swipeFullWidth: String? = null
 ) : KeyDef(
     Appearance.Text(
         displayText = symbol,
@@ -30,9 +32,12 @@ class SymbolKey(
         percentWidth = percentWidth,
         variant = variant
     ),
-    setOf(
-        Behavior.Press(KeyAction.FcitxKeyAction(symbol))
-    ),
+    buildSet {
+        add(Behavior.Press(KeyAction.FcitxKeyAction(symbol)))
+        if (swipeAscii != null && swipeFullWidth != null) {
+            add(Behavior.Swipe(KeyAction.PunctuationToggleAction(swipeAscii, swipeFullWidth)))
+        }
+    },
     popup ?: arrayOf(
         Popup.Preview(symbol),
         Popup.Keyboard(symbol)
@@ -166,7 +171,8 @@ class CommaKey(
         src = R.drawable.ic_baseline_tag_faces_24
     ),
     setOf(
-        Behavior.Press(KeyAction.FcitxKeyAction(","))
+        Behavior.Press(KeyAction.FcitxKeyAction(",")),
+        Behavior.Swipe(KeyAction.PunctuationToggleAction(",", "，"))
     ),
     arrayOf(
         Popup.Preview(","),

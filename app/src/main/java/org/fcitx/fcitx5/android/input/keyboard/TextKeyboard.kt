@@ -80,7 +80,13 @@ class TextKeyboard(
                     TabKey(longPressText = tabLongPressText),
                     CommaKey(0.1f, KeyDef.Appearance.Variant.Alternative),
                     SpaceKey(),
-                    SymbolKey(".", 0.1f, KeyDef.Appearance.Variant.Alternative),
+                    SymbolKey(
+                        ".",
+                        0.1f,
+                        KeyDef.Appearance.Variant.Alternative,
+                        swipeAscii = ".",
+                        swipeFullWidth = "。"
+                    ),
                     ReturnKey()
                 )
             )

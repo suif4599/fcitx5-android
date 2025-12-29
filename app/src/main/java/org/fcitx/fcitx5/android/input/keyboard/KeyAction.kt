@@ -26,6 +26,11 @@ sealed class KeyAction {
      */
     data class KeySequenceAction(val sequence: String) : KeyAction()
 
+    /**
+     * Toggle punctuation output between half-width and full-width depending on IM mode.
+     */
+    data class PunctuationToggleAction(val ascii: String, val fullWidth: String) : KeyAction()
+
     data class CapsAction(val lock: Boolean) : KeyAction()
 
     data object QuickPhraseAction : KeyAction()
