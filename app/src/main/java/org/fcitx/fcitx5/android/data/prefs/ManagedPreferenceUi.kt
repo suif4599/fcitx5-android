@@ -74,7 +74,10 @@ abstract class ManagedPreferenceUi<T : Preference>(
                 }
                 true
             }
-            summary?.let { setSummary(it) }
+            summary?.let {
+                summaryProvider = null
+                setSummary(it)
+            }
         }
     }
 
