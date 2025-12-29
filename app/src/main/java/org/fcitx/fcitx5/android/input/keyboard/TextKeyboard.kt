@@ -56,7 +56,7 @@ class TextKeyboard(
                 listOf(
                     AlphabetKey("A", alt("A", "\\")),
                     AlphabetKey("S", alt("S", "!")),
-                    AlphabetKey("D", alt("D", "@")),
+                    AlphabetKey("D", alt("D", "#")),
                     AlphabetKey("F", alt("F", "+")),
                     AlphabetKey("G", alt("G", "%")),
                     AlphabetKey("H", alt("H", "\"")),
