@@ -161,6 +161,13 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             "swipe_symbol_overrides",
             ""
         ).apply { register() }
+        val tabLongPressText = string(
+            R.string.tab_long_press_text,
+            "tab_long_press_text",
+            TAB_LONG_PRESS_DEFAULT,
+            validate = { sanitizeTabLongPressText(it) == it && it.isNotEmpty() },
+            invalidMessage = R.string.tab_long_press_text_invalid
+        )
         val longPressDelay = int(
             R.string.keyboard_long_press_delay,
             "keyboard_long_press_delay",
@@ -429,6 +436,19 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
 
     companion object {
         private var instance: AppPrefs? = null
+
+        const val TAB_LONG_PRESS_DEFAULT = "``"
+        private val tabLongPressAllowedChars: Set<Char> = buildSet {
+            addAll('a'..'z')
+            addAll('A'..'Z')
+            addAll('0'..'9')
+            "`~!@#$%^&*()-_=+[]{};:'\",.<>/?\\| ".forEach { add(it) }
+        }
+
+        fun sanitizeTabLongPressText(raw: String): String {
+            val candidate = if (raw.isEmpty()) TAB_LONG_PRESS_DEFAULT else raw
+            return if (candidate.all { it in tabLongPressAllowedChars }) candidate else TAB_LONG_PRESS_DEFAULT
+        }
 
         /**
          * MUST call before use

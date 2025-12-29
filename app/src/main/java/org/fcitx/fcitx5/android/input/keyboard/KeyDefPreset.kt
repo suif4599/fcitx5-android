@@ -112,7 +112,7 @@ class LayoutSwitchKey(
     val to: String = "",
     percentWidth: Float = 0.15f,
     variant: Variant = Variant.Alternative
-) : KeyDef(
+    ) : KeyDef(
     Appearance.Text(
         displayText,
         textSize = 16f,
@@ -206,7 +206,8 @@ class LanguageKey : KeyDef(
 
 class TabKey(
     percentWidth: Float = 0.1f,
-    variant: Variant = Variant.Alternative
+    variant: Variant = Variant.Alternative,
+    longPressText: String = "``"
 ) : KeyDef(
     Appearance.Text(
         displayText = "T",
@@ -215,7 +216,8 @@ class TabKey(
         variant = variant
     ),
     setOf(
-        Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_Tab)))
+        Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_Tab))),
+        Behavior.LongPress(KeyAction.KeySequenceAction(longPressText.ifBlank { "``" }))
     )
 )
 

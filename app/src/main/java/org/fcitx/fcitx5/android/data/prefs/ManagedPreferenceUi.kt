@@ -43,6 +43,41 @@ abstract class ManagedPreferenceUi<T : Preference>(
         }
     }
 
+    class EditTextString(
+        @StringRes
+        val title: Int,
+        key: String,
+        val defaultValue: String,
+        @StringRes
+        val summary: Int? = null,
+        enableUiOn: (() -> Boolean)? = null,
+        val validate: ((String) -> Boolean)? = null,
+        @StringRes val invalidMessage: Int? = null
+    ) : ManagedPreferenceUi<EditTextPreference>(key, enableUiOn) {
+        override fun createUi(context: Context) = EditTextPreference(context).apply {
+            key = this@EditTextString.key
+            isIconSpaceReserved = false
+            isSingleLineTitle = false
+            if (summary == null) {
+                summaryProvider = EditTextPreference.SimpleSummaryProvider.getInstance()
+            }
+            setDefaultValue(defaultValue)
+            setTitle(this@EditTextString.title)
+            setOnBindEditTextListener { it.hint = defaultValue }
+            setOnPreferenceChangeListener { pref, newValue ->
+                val candidate = (newValue as? String) ?: defaultValue
+                if (validate != null && !validate.invoke(candidate)) {
+                    invalidMessage?.let {
+                        android.widget.Toast.makeText(pref.context, it, android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                    return@setOnPreferenceChangeListener false
+                }
+                true
+            }
+            summary?.let { setSummary(it) }
+        }
+    }
+
     class StringList<T : Any>(
         @StringRes
         val title: Int,

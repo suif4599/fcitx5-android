@@ -23,15 +23,21 @@ import splitties.views.imageResource
 class TextKeyboard(
     context: Context,
     theme: Theme,
-    swipeOverrides: Map<String, String> = emptyMap()
-) : BaseKeyboard(context, theme, layout(swipeOverrides)) {
+    swipeOverrides: Map<String, String> = emptyMap(),
+    private val tabLongPressText: String = AppPrefs.sanitizeTabLongPressText(
+        AppPrefs.getInstance().keyboard.tabLongPressText.getValue()
+    )
+) : BaseKeyboard(context, theme, layout(swipeOverrides, tabLongPressText)) {
 
     enum class CapsState { None, Once, Lock }
 
     companion object {
         const val Name = "Text"
 
-        fun layout(swipeOverrides: Map<String, String>): List<List<KeyDef>> {
+        fun layout(
+            swipeOverrides: Map<String, String>,
+            tabLongPressText: String
+        ): List<List<KeyDef>> {
             fun alt(key: String, fallback: String) = swipeOverrides[key] ?: fallback
 
             return listOf(
@@ -71,7 +77,7 @@ class TextKeyboard(
                 ),
                 listOf(
                     LayoutSwitchKey("?123", ""),
-                    TabKey(),
+                    TabKey(longPressText = tabLongPressText),
                     CommaKey(0.1f, KeyDef.Appearance.Variant.Alternative),
                     SpaceKey(),
                     SymbolKey(".", 0.1f, KeyDef.Appearance.Variant.Alternative),

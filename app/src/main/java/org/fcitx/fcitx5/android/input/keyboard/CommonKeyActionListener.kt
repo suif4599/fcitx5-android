@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import org.fcitx.fcitx5.android.core.FcitxAPI
+import org.fcitx.fcitx5.android.core.KeyStates
 import org.fcitx.fcitx5.android.daemon.launchOnReady
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.input.broadcast.PreeditEmptyStateComponent
@@ -24,6 +25,7 @@ import org.fcitx.fcitx5.android.input.keyboard.CommonKeyActionListener.Backspace
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction.CommitAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction.DeleteSelectionAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction.FcitxKeyAction
+import org.fcitx.fcitx5.android.input.keyboard.KeyAction.KeySequenceAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction.LangSwitchAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction.MoveSelectionAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction.PickerSwitchAction
@@ -40,6 +42,7 @@ import org.mechdancer.dependency.UniqueComponent
 import org.mechdancer.dependency.manager.ManagedHandler
 import org.mechdancer.dependency.manager.managedHandler
 import org.mechdancer.dependency.manager.must
+import org.fcitx.fcitx5.android.core.ScancodeMapping
 
 class CommonKeyActionListener :
     UniqueComponent<CommonKeyActionListener>(), Dependent, ManagedHandler by managedHandler() {
@@ -95,6 +98,11 @@ class CommonKeyActionListener :
                 }
                 is SymAction -> service.postFcitxJob {
                     sendKey(action.sym, action.states)
+                }
+                is KeySequenceAction -> service.postFcitxJob {
+                    action.sequence.forEach { ch ->
+                        sendKey(ch.toString(), KeyStates.Virtual.states, ScancodeMapping.charToScancode(ch))
+                    }
                 }
                 is CommitAction -> service.postFcitxJob {
                     commitAndReset()

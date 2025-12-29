@@ -21,6 +21,11 @@ sealed class KeyAction {
 
     data class CommitAction(val text: String) : KeyAction()
 
+    /**
+     * Simulate pressing a sequence of keys as if typed on the keyboard.
+     */
+    data class KeySequenceAction(val sequence: String) : KeyAction()
+
     data class CapsAction(val lock: Boolean) : KeyAction()
 
     data object QuickPhraseAction : KeyAction()
