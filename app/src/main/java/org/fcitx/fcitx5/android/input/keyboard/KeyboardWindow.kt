@@ -28,10 +28,8 @@ import org.fcitx.fcitx5.android.input.wm.EssentialWindow
 import org.fcitx.fcitx5.android.input.wm.InputWindow
 import org.fcitx.fcitx5.android.input.wm.InputWindowManager
 import org.mechdancer.dependency.manager.must
-import splitties.views.dsl.core.add
+import splitties.dimensions.dp
 import splitties.views.dsl.core.frameLayout
-import splitties.views.dsl.core.lParams
-import splitties.views.dsl.core.matchParent
 
 class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), EssentialWindow,
     InputBroadcastReceiver {
@@ -67,6 +65,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         }
 
     private lateinit var keyboardView: FrameLayout
+    private lateinit var floatingContainer: FrameLayout
 
     private val keyboards: HashMap<String, BaseKeyboard> by lazy {
         hashMapOf(
@@ -94,6 +93,15 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     // This will be called EXACTLY ONCE
     override fun onCreateView(): View {
         keyboardView = context.frameLayout(R.id.keyboard_view)
+        floatingContainer = context.frameLayout()
+        keyboardView.addView(
+            floatingContainer,
+            FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+            )
+        )
+        applyFloatingLayout()
         attachLayout(TextKeyboard.Name)
         return keyboardView
     }
@@ -112,11 +120,34 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         currentKeyboard?.let {
             it.keyActionListener = keyActionListener
             it.popupActionListener = popupActionListener
-            keyboardView.apply { add(it, lParams(matchParent, matchParent)) }
+            floatingContainer.addView(
+                it,
+                FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    FrameLayout.LayoutParams.MATCH_PARENT
+                )
+            )
             it.onAttach()
             it.onReturnDrawableUpdate(returnKeyDrawable.resourceId)
             it.onInputMethodUpdate(fcitx.runImmediately { inputMethodEntryCached })
         }
+    }
+
+    fun applyFloatingLayout() {
+        if (!::floatingContainer.isInitialized) return
+        val floating = AppPrefs.getInstance().keyboard.floatingKeyboard.getValue()
+        val metrics = context.resources.displayMetrics
+        val width = if (floating) (metrics.widthPixels * 0.85f).toInt() else FrameLayout.LayoutParams.MATCH_PARENT
+        val height = if (floating) FrameLayout.LayoutParams.WRAP_CONTENT else FrameLayout.LayoutParams.MATCH_PARENT
+        val bottomMargin = if (floating) context.dp(80) else 0
+        val lp = FrameLayout.LayoutParams(width, height).apply {
+            gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+            setMargins(0, context.dp(8), 0, bottomMargin)
+        }
+        floatingContainer.layoutParams = lp
+        floatingContainer.clipChildren = !floating
+        floatingContainer.clipToPadding = !floating
+        floatingContainer.setPadding(0, 0, 0, 0)
     }
 
     fun switchLayout(to: String, remember: Boolean = true) {

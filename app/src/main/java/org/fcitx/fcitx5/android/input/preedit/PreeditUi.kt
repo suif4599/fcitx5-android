@@ -30,6 +30,8 @@ open class PreeditUi(
     private val setupTextView: (TextView.() -> Unit)? = null
 ) : Ui {
 
+    var alwaysReserveLine: Boolean = false
+
     class CursorSpan(ctx: Context, @ColorInt color: Int, metrics: Paint.FontMetricsInt) :
         DynamicDrawableSpan() {
         private val drawable = ShapeDrawable(RectShape()).apply {
@@ -53,6 +55,8 @@ open class PreeditUi(
     private val upView = createTextView()
 
     private val downView = createTextView()
+
+    private val reserveHeight by lazy { upView.lineHeight }
 
     var visible = false
         private set
@@ -91,6 +95,8 @@ open class PreeditUi(
         if (!visible) {
             updateTextView(upView, "", false)
             updateTextView(downView, "", false)
+            root.minimumHeight = if (alwaysReserveLine) reserveHeight else 0
+            root.visibility = if (alwaysReserveLine) View.INVISIBLE else View.GONE
             return
         }
         val upStringWithCursor = if (upCursor < 0 || upCursor == upString.length) {
@@ -103,5 +109,7 @@ open class PreeditUi(
         }
         updateTextView(upView, upStringWithCursor, hasUp)
         updateTextView(downView, downString, hasDown)
+        root.minimumHeight = 0
+        root.visibility = View.VISIBLE
     }
 }

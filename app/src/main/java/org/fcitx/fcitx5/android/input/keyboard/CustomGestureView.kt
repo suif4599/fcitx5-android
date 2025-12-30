@@ -13,6 +13,11 @@ import android.view.ViewConfiguration
 import android.widget.FrameLayout
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import org.fcitx.fcitx5.android.input.FcitxInputMethodService
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -46,9 +51,13 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
         }
     }
 
-    private val lifecycleScope by lazy {
-        findViewTreeLifecycleOwner()?.lifecycleScope!!
-    }
+    private val externalScope = findViewTreeLifecycleOwner()?.lifecycleScope
+        ?: (context as? FcitxInputMethodService)?.lifecycleScope
+
+    private val gestureScope: CoroutineScope = externalScope
+        ?: CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
+
+    private val ownsScope = externalScope == null
 
     @Volatile
     private var touchMovedOutside = false
@@ -151,7 +160,7 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
                 dispatchGestureEvent(GestureType.Down, x, y)
                 if (longPressEnabled) {
                     longPressJob?.cancel()
-                    longPressJob = lifecycleScope.launch {
+                    longPressJob = gestureScope.launch {
                         delay(longPressDelay.toLong())
                         if (longPressFeedbackEnabled) {
                             InputFeedbacks.hapticFeedback(this@CustomGestureView, true)
@@ -161,7 +170,7 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
                 }
                 if (repeatEnabled) {
                     repeatJob?.cancel()
-                    repeatJob = lifecycleScope.launch {
+                    repeatJob = gestureScope.launch {
                         delay(longPressDelay.toLong())
                         repeatStarted = true
                         var lastTriggerTime: Long
@@ -256,6 +265,13 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
         val consumed = onGestureListener?.onGesture(this, event) ?: return
         if (consumed && !gestureConsumed) {
             gestureConsumed = true
+        }
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        if (ownsScope) {
+            gestureScope.cancel()
         }
     }
 

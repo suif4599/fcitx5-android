@@ -11,16 +11,17 @@ import org.fcitx.fcitx5.android.core.Action
 sealed class StatusAreaEntry(
     val label: String,
     @DrawableRes
-    val icon: Int,
-    val active: Boolean
+    open val icon: Int,
+    open val active: Boolean
 ) {
-    class Android(label: String, icon: Int, val type: Type) :
+    open class Android(label: String, @DrawableRes override val icon: Int, val type: Type) :
         StatusAreaEntry(label, icon, false) {
         enum class Type {
             InputMethod,
             ReloadConfig,
             Keyboard,
-            ThemeList
+            ThemeList,
+            FloatingKeyboard
         }
     }
 

@@ -172,6 +172,13 @@ class HorizontalCandidateComponent :
             adapter = this@HorizontalCandidateComponent.adapter
             layoutManager = this@HorizontalCandidateComponent.layoutManager
             addItemDecoration(FlexboxVerticalDecoration(dividerDrawable))
+            val barHeight = context.dp(KawaiiBarComponent.HEIGHT)
+            minimumHeight = barHeight
+            // keep a stable height in floating mode to avoid vertical jump
+            if (service.isFloatingKeyboardEnabled()) {
+                layoutParams = layoutParams?.also { it.height = barHeight }
+                    ?: RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, barHeight)
+            }
         }
     }
 

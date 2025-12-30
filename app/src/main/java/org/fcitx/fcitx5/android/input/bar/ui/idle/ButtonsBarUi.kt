@@ -5,6 +5,7 @@
 package org.fcitx.fcitx5.android.input.bar.ui.idle
 
 import android.content.Context
+import android.view.View
 import androidx.annotation.DrawableRes
 import com.google.android.flexbox.AlignItems
 import com.google.android.flexbox.FlexboxLayout
@@ -42,6 +43,11 @@ class ButtonsBarUi(override val ctx: Context, private val theme: Theme) : Ui {
 
     val clipboardButton = toolButton(R.drawable.ic_clipboard).apply {
         contentDescription = ctx.getString(R.string.clipboard)
+    }
+
+    val moveHandleButton = toolButton(R.drawable.ic_baseline_drag_handle_24).apply {
+        contentDescription = ctx.getString(R.string.move)
+        visibility = View.GONE
     }
 
     val moreButton = toolButton(R.drawable.ic_baseline_more_horiz_24).apply {

@@ -25,6 +25,8 @@ class PreeditComponent : UniqueComponent<PreeditComponent>(), Dependent, InputBr
     private val context by manager.context()
     private val theme by manager.theme()
 
+    private var reserveLine = false
+
     val ui by lazy {
         val keyBorder = ThemeManager.prefs.keyBorder.getValue()
         val bkgColor =
@@ -36,7 +38,13 @@ class PreeditComponent : UniqueComponent<PreeditComponent>(), Dependent, InputBr
             // TODO make it customizable
             root.alpha = 0.8f
             root.visibility = View.INVISIBLE
+            alwaysReserveLine = reserveLine
         }
+    }
+
+    fun setAlwaysReserveLine(value: Boolean) {
+        reserveLine = value
+        ui.alwaysReserveLine = value
     }
 
     override fun onInputPanelUpdate(data: FcitxEvent.InputPanelEvent.Data) {

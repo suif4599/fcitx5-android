@@ -8,13 +8,17 @@ package org.fcitx.fcitx5.android.input
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.pm.ActivityInfo
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.drawable.Icon
+import android.widget.Toast
 import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
+import android.provider.Settings
+import android.net.Uri
 import android.text.InputType
 import android.util.LruCache
 import android.util.Size
@@ -65,6 +69,7 @@ import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.input.cursor.CursorRange
 import org.fcitx.fcitx5.android.input.cursor.CursorTracker
+import org.fcitx.fcitx5.android.input.floating.FloatingKeyboardController
 import org.fcitx.fcitx5.android.utils.InputMethodUtil
 import org.fcitx.fcitx5.android.utils.alpha
 import org.fcitx.fcitx5.android.utils.forceShowSelf
@@ -100,6 +105,9 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     private lateinit var contentView: FrameLayout
     private var inputView: InputView? = null
     private var candidatesView: CandidatesView? = null
+    private var floatingController: FloatingKeyboardController? = null
+    private var floatingEnabled = false
+    private var lastEditorInfo: EditorInfo? = null
 
     private val navbarMgr = NavigationBarManager()
     private val inputDeviceMgr = InputDeviceManager { isVirtualKeyboard ->
@@ -166,6 +174,64 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         replaceCandidateView(theme)
     }
 
+    private val activeInputView: InputView?
+        get() = if (floatingEnabled) floatingController?.inputView else inputView
+
+    private fun ensureOverlayPermission(): Boolean {
+        if (Settings.canDrawOverlays(this)) return true
+        Toast.makeText(this, R.string.floating_keyboard_permission_message, Toast.LENGTH_SHORT)
+            .show()
+        val intent = Intent(
+            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+            Uri.parse("package:$packageName")
+        ).apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
+        startActivity(intent)
+        return false
+    }
+
+    fun enableFloatingKeyboard(): Boolean {
+        if (currentInputConnection == null) {
+            Toast.makeText(this, R.string.floating_keyboard_unavailable_message, Toast.LENGTH_SHORT)
+                .show()
+            return false
+        }
+        if (!ensureOverlayPermission()) return false
+        if (floatingEnabled) return true
+        val controller = floatingController ?: FloatingKeyboardController(this, fcitx).also {
+            floatingController = it
+        }
+        controller.show(ThemeManager.activeTheme)
+        floatingEnabled = true
+        AppPrefs.getInstance().keyboard.floatingKeyboard.setValue(true)
+        inputView?.let {
+            it.handleEvents = false
+            it.visibility = View.GONE
+        }
+        candidatesView?.visibility = View.GONE
+        controller.inputView?.handleEvents = true
+        lastEditorInfo?.let {
+            controller.inputView?.startInput(it, capabilityFlags, true)
+        }
+        return true
+    }
+
+    fun disableFloatingKeyboard() {
+        if (!floatingEnabled) return
+        floatingEnabled = false
+        AppPrefs.getInstance().keyboard.floatingKeyboard.setValue(false)
+        floatingController?.hide()
+        inputView?.let {
+            it.visibility = View.VISIBLE
+            it.handleEvents = true
+            lastEditorInfo?.let { info ->
+                it.startInput(info, capabilityFlags, true)
+            }
+        }
+        candidatesView?.visibility = View.VISIBLE
+    }
+
+    fun isFloatingKeyboardEnabled() = floatingEnabled
+
     @Keep
     private val recreateInputViewListener = ManagedPreference.OnChangeListener<Any> { _, _ ->
         replaceInputView(ThemeManager.activeTheme)
@@ -212,6 +278,8 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         }
         prefs.candidates.registerOnChangeListener(recreateCandidatesViewListener)
         ThemeManager.addOnChangedListener(onThemeChangeListener)
+        // floating keyboard state is runtime-only; reset on service start
+        AppPrefs.getInstance().keyboard.floatingKeyboard.setValue(false)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             postFcitxJob {
                 SubtypeManager.syncWith(enabledIme())
@@ -578,7 +646,14 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     private var inputViewLocation = intArrayOf(0, 0)
 
     override fun onComputeInsets(outInsets: Insets) {
-        if (inputDeviceMgr.isVirtualKeyboard) {
+        if (floatingEnabled) {
+            val fullHeight = contentView.height
+            outInsets.apply {
+                contentTopInsets = fullHeight
+                visibleTopInsets = fullHeight
+                touchableInsets = Insets.TOUCHABLE_INSETS_VISIBLE
+            }
+        } else if (inputDeviceMgr.isVirtualKeyboard) {
             inputView?.keyboardView?.getLocationInWindow(inputViewLocation)
             outInsets.apply {
                 contentTopInsets = inputViewLocation[1]
@@ -598,7 +673,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
 
     // always show InputView since we delegate CandidatesView's visibility to it
     @SuppressLint("MissingSuperCall")
-    override fun onEvaluateInputViewShown() = true
+    override fun onEvaluateInputViewShown() = !floatingEnabled
 
     fun superEvaluateInputViewShown() = super.onEvaluateInputViewShown()
 
@@ -714,6 +789,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         resetComposingState()
         val flags = CapabilityFlags.fromEditorInfo(attribute)
         capabilityFlags = flags
+        lastEditorInfo = attribute
         // EditorInfo may change between onStartInput and onStartInputView
         inputDeviceMgr.notifyOnStartInput(attribute)
         Timber.d("onStartInput: initialSel=${selection.current}, restarting=$restarting")
@@ -738,13 +814,14 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
 
     override fun onStartInputView(info: EditorInfo, restarting: Boolean) {
         Timber.d("onStartInputView: restarting=$restarting")
+        lastEditorInfo = info
         postFcitxJob {
             focus(true)
         }
         if (inputDeviceMgr.evaluateOnStartInputView(info, this)) {
             // because onStartInputView will always be called after onStartInput,
             // editorInfo and capFlags should be up-to-date
-            inputView?.startInput(info, capabilityFlags, restarting)
+            activeInputView?.startInput(info, capabilityFlags, restarting)
         } else {
             if (currentInputConnection?.monitorCursorAnchor() != true) {
                 if (!decorLocationUpdated) {
@@ -769,7 +846,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         cursorUpdateIndex += 1
         Timber.d("onUpdateSelection: old=[$oldSelStart,$oldSelEnd] new=[$newSelStart,$newSelEnd]")
         handleCursorUpdate(newSelStart, newSelEnd, cursorUpdateIndex)
-        inputView?.updateSelection(newSelStart, newSelEnd)
+        activeInputView?.updateSelection(newSelStart, newSelEnd)
     }
 
     private val contentSize = floatArrayOf(0f, 0f)
@@ -1015,11 +1092,14 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onInlineSuggestionsResponse(response: InlineSuggestionsResponse): Boolean {
         if (!inlineSuggestions || !inputDeviceMgr.isVirtualKeyboard) return false
-        return inputView?.handleInlineSuggestions(response) == true
+        return activeInputView?.handleInlineSuggestions(response) == true
     }
 
     override fun onFinishInputView(finishingInput: Boolean) {
         Timber.d("onFinishInputView: finishingInput=$finishingInput")
+        if (floatingEnabled) {
+            disableFloatingKeyboard()
+        }
         decorLocationUpdated = false
         inputDeviceMgr.onFinishInputView()
         currentInputConnection?.apply {
@@ -1035,6 +1115,9 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
 
     override fun onFinishInput() {
         Timber.d("onFinishInput")
+        if (floatingEnabled) {
+            disableFloatingKeyboard()
+        }
         postFcitxJob {
             focus(false)
         }
@@ -1059,6 +1142,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         }
         prefs.candidates.unregisterOnChangeListener(recreateCandidatesViewListener)
         ThemeManager.removeOnChangedListener(onThemeChangeListener)
+        floatingController?.hide()
         super.onDestroy()
         // Fcitx might be used in super.onDestroy()
         FcitxDaemon.disconnect(javaClass.name)

@@ -141,6 +141,11 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             "keep_keyboard_letters_uppercase",
             false
         )
+        val floatingKeyboard = switch(
+            R.string.floating_keyboard,
+            "floating_keyboard",
+            false
+        )
         val showVoiceInputButton =
             switch(R.string.show_voice_input_button, "show_voice_input_button", false)
         val expandKeypressArea =

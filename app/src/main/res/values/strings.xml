@@ -151,6 +151,12 @@
     <string name="none">None</string>
     <string name="theme_migrated">Theme has been migrated to the current version</string>
     <string name="keep_keyboard_letters_uppercase">Keep keyboard letters uppercase</string>
+    <string name="floating_keyboard">Floating keyboard</string>
+    <string name="floating_keyboard_on">Floating keyboard: On</string>
+    <string name="floating_keyboard_off">Floating keyboard: Off</string>
+    <string name="floating_keyboard_permission_message">Overlay permission is required to enable floating keyboard. Please allow it in system settings.</string>
+    <string name="floating_keyboard_unavailable_message">Floating keyboard can only be toggled while input is active.</string>
+    <string name="move">Move</string>
     <string name="choose_input_method">Choose input method</string>
     <string name="edit_clipboard">Edit clipboard</string>
     <string name="clipboard_edit_text_hint">Clipboard content</string>

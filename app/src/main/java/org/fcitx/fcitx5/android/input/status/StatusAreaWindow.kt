@@ -30,6 +30,8 @@ import org.fcitx.fcitx5.android.input.status.StatusAreaEntry.Android.Type.InputM
 import org.fcitx.fcitx5.android.input.status.StatusAreaEntry.Android.Type.Keyboard
 import org.fcitx.fcitx5.android.input.status.StatusAreaEntry.Android.Type.ReloadConfig
 import org.fcitx.fcitx5.android.input.status.StatusAreaEntry.Android.Type.ThemeList
+import org.fcitx.fcitx5.android.input.status.StatusAreaEntry.Android.Type.FloatingKeyboard
+import org.fcitx.fcitx5.android.input.keyboard.KeyboardWindow
 import org.fcitx.fcitx5.android.input.wm.InputWindow
 import org.fcitx.fcitx5.android.input.wm.InputWindowManager
 import org.fcitx.fcitx5.android.utils.AppUtil
@@ -55,8 +57,13 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(),
 
     private val editorInfoInspector by AppPrefs.getInstance().internal.editorInfoInspector
 
-    private val staticEntries by lazy {
-        arrayOf(
+    private fun staticEntries(): Array<StatusAreaEntry> {
+        val floatingOn = service.isFloatingKeyboardEnabled()
+        val floatingLabel =
+            if (floatingOn) context.getString(R.string.floating_keyboard_on)
+            else context.getString(R.string.floating_keyboard_off)
+
+        return arrayOf(
             StatusAreaEntry.Android(
                 context.getString(R.string.theme),
                 R.drawable.ic_baseline_palette_24,
@@ -76,7 +83,17 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(),
                 context.getString(R.string.virtual_keyboard),
                 R.drawable.ic_baseline_keyboard_24,
                 Keyboard
-            )
+            ),
+                StatusAreaEntry.Android(
+                    floatingLabel,
+                    R.drawable.ic_baseline_flip_24,
+                    StatusAreaEntry.Android.Type.FloatingKeyboard
+                ).let {
+                    object : StatusAreaEntry.Android(it.label, it.icon, it.type) {
+                        // override active flag using floating state
+                        override val active: Boolean = service.isFloatingKeyboardEnabled()
+                    }
+                }
         )
     }
 
@@ -87,6 +104,8 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(),
     }
 
     var popupMenu: PopupMenu? = null
+
+    private var cachedActions: Array<Action> = emptyArray()
 
     private val adapter: StatusAreaAdapter by lazy {
         object : StatusAreaAdapter() {
@@ -152,6 +171,7 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(),
                         }
                         Keyboard -> AppUtil.launchMainToKeyboard(context)
                         ThemeList -> AppUtil.launchMainToThemeList(context)
+                        FloatingKeyboard -> toggleFloatingKeyboard()
                     }
                 }
             }
@@ -173,10 +193,43 @@ class StatusAreaWindow : InputWindow.ExtendedInputWindow<StatusAreaWindow>(),
     }
 
     override fun onStatusAreaUpdate(actions: Array<Action>) {
+        cachedActions = actions
+        refreshEntries()
+    }
+
+    private fun refreshEntries() {
         adapter.entries = arrayOf(
-            *staticEntries,
-            *Array(actions.size) { StatusAreaEntry.fromAction(actions[it]) }
+            *staticEntries(),
+            *Array(cachedActions.size) { StatusAreaEntry.fromAction(cachedActions[it]) }
         )
+    }
+
+    private fun toggleFloatingKeyboard() {
+        if (service.currentInputConnection == null) {
+            Toast.makeText(
+                service,
+                R.string.floating_keyboard_unavailable_message,
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+        val nowEnabled = service.isFloatingKeyboardEnabled()
+        val succeeded = if (nowEnabled) {
+            service.disableFloatingKeyboard()
+            true
+        } else {
+            service.enableFloatingKeyboard()
+        }
+        if (succeeded) {
+            refreshEntries()
+            service.lifecycleScope.launch {
+                Toast.makeText(
+                    service,
+                    if (!nowEnabled) R.string.floating_keyboard_on else R.string.floating_keyboard_off,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
 
     override fun onCreateView() = view
