@@ -264,10 +264,6 @@ class InputView(
         preedit.setAlwaysReserveLine(always)
     }
 
-    fun setFloatingDragHandle(listener: View.OnTouchListener?, enabled: Boolean) {
-        kawaiiBar.setFloatingDragHandle(listener, enabled)
-    }
-
     private fun updateKeyboardSize() {
         windowManager.view.updateLayoutParams {
             height = keyboardHeightPx

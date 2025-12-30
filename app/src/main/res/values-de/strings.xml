@@ -17,6 +17,8 @@
     <string name="button_press">Tastendruck</string>
     <string name="button_long_press">Langer Tastendruck</string>
     <string name="button_vibration_amplitude">Amplitude der Tastendruck-Vibration</string>
+    <string name="button_sound">Ton bei Tastendruck</string>
+    <string name="button_sound_volume">Ton Tastendruck Lautstärke</string>
     <string name="add">Hinzufügen</string>
     <string name="edit">Bearbeiten</string>
     <string name="undo">Rückgängig</string>
@@ -159,6 +161,13 @@
     <string name="whether_reset_switch_preference">Wollen Sie diese Einstellung auf den Standard zurücksetzen?</string>
     <string name="enabled">Eingeschaltet</string>
     <string name="following_system_settings">Wie Systemeinstellungen</string>
-    <string name="button_sound">Ton bei Tastendruck</string>
-    <string name="button_sound_volume">Ton Tastendruck Lautstärke</string>
+    <string name="floating_keyboard">Schwebende Tastatur</string>
+    <string name="floating_keyboard_on">Schwebende Tastatur: Ein</string>
+    <string name="floating_keyboard_off">Schwebende Tastatur: Aus</string>
+    <string name="floating_keyboard_permission_message">Zum Aktivieren der schwebenden Tastatur ist die Berechtigung zum Überlagern erforderlich. Bitte in den Systemeinstellungen erlauben.</string>
+    <string name="floating_keyboard_unavailable_message">Die schwebende Tastatur kann nur während einer aktiven Eingabe umgeschaltet werden.</string>
+    <string name="floating_keyboard_auto_landscape">Schwebende Tastatur im Querformat automatisch aktivieren</string>
+    <string name="floating_keyboard_scale">Größe der schwebenden Tastatur</string>
+    <string name="floating_keyboard_landscape_use_portrait_size">Im Querformat Hochformatgröße verwenden</string>
+    <string name="move">Verschieben</string>
     </resources>

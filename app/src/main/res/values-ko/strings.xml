@@ -91,4 +91,13 @@
     <string name="quickphrase_phrase">구문</string>
     <string name="reload_config">구성 새로고침</string>
     <string name="input_method_options">입력기 옵션</string>
+    <string name="floating_keyboard">플로팅 키보드</string>
+    <string name="floating_keyboard_on">플로팅 키보드: 켜짐</string>
+    <string name="floating_keyboard_off">플로팅 키보드: 꺼짐</string>
+    <string name="floating_keyboard_permission_message">플로팅 키보드를 사용하려면 다른 앱 위에 표시 권한이 필요합니다. 시스템 설정에서 허용해주세요.</string>
+    <string name="floating_keyboard_unavailable_message">입력 중에만 플로팅 키보드를 전환할 수 있습니다.</string>
+    <string name="floating_keyboard_auto_landscape">가로 화면에서 플로팅 키보드 자동 활성화</string>
+    <string name="floating_keyboard_scale">플로팅 키보드 크기</string>
+    <string name="floating_keyboard_landscape_use_portrait_size">가로 화면에서 세로 크기 사용</string>
+    <string name="move">이동</string>
     </resources>

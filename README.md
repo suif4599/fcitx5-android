@@ -14,4 +14,4 @@ Forked from [fcitx5-android](https://github.com/fcitx5-android/fcitx5-android)
 To change the swipe symbol binding, modify:
 
 1. `./app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt`
-2. `./app/src/main/java/org/fcitx/fcitx5/android/input/popup/PopupPreset.kt`: Part `Upper case Latin` and bindings of `.` in Part `Punctuation`
+2. `./app/src/main/java/org/fcitx/fcitx5/android/input/popup/PopupPreset.kt`: Part `(Upper case)Latin` and bindings of `.` in Part `Punctuation`

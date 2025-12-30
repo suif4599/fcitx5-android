@@ -147,6 +147,15 @@
     <string name="none">なし</string>
     <string name="theme_migrated">テーマは現在のバージョンに以降されました</string>
     <string name="keep_keyboard_letters_uppercase">キーボードの文字を大文字にする</string>
+    <string name="floating_keyboard">フローティングキーボード</string>
+    <string name="floating_keyboard_on">フローティングキーボード：オン</string>
+    <string name="floating_keyboard_off">フローティングキーボード：オフ</string>
+    <string name="floating_keyboard_permission_message">フローティングキーボードを有効にするには「他のアプリの上に重ねて表示」権限が必要です。システム設定で許可してください。</string>
+    <string name="floating_keyboard_unavailable_message">入力中のみフローティングキーボードを切り替えられます。</string>
+    <string name="floating_keyboard_auto_landscape">横向きで自動的にフローティングキーボードを有効化</string>
+    <string name="floating_keyboard_scale">フローティングキーボードのサイズ</string>
+    <string name="floating_keyboard_landscape_use_portrait_size">横向きで縦向きのサイズを使う</string>
+    <string name="move">移動</string>
     <string name="choose_input_method">インプットメゾッドを選択</string>
     <string name="edit_clipboard">クリップボードを編集</string>
     <string name="clipboard_edit_text_hint">クリップボードのコンテンツ</string>

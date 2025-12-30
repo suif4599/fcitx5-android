@@ -151,6 +151,15 @@
     <string name="none">Нет</string>
     <string name="theme_migrated">Тема перенесена в текущую версию</string>
     <string name="keep_keyboard_letters_uppercase">Сохранять буквы клавиатуры прописными</string>
+    <string name="floating_keyboard">Плавающая клавиатура</string>
+    <string name="floating_keyboard_on">Плавающая клавиатура: включена</string>
+    <string name="floating_keyboard_off">Плавающая клавиатура: выключена</string>
+    <string name="floating_keyboard_permission_message">Для включения плавающей клавиатуры требуется разрешение на наложение поверх окон. Разрешите его в настройках системы.</string>
+    <string name="floating_keyboard_unavailable_message">Плавающую клавиатуру можно переключать только во время ввода.</string>
+    <string name="floating_keyboard_auto_landscape">Автоматически включать плавающую клавиатуру в альбомной ориентации</string>
+    <string name="floating_keyboard_scale">Размер плавающей клавиатуры</string>
+    <string name="floating_keyboard_landscape_use_portrait_size">В альбомной ориентации использовать портретный размер</string>
+    <string name="move">Переместить</string>
     <string name="choose_input_method">Выбор метода ввода</string>
     <string name="edit_clipboard">Редактировать буфер обмена</string>
     <string name="clipboard_edit_text_hint">Содержимое буфера обмена</string>

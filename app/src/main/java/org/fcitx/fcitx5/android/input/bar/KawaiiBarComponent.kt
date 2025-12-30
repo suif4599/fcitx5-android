@@ -90,14 +90,6 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
     private val commonKeyActionListener: CommonKeyActionListener by manager.must()
     private val popup: PopupComponent by manager.must()
 
-    private val buttonsUi get() = idleUi.buttonsUi
-
-    fun setFloatingDragHandle(listener: View.OnTouchListener?, enabled: Boolean) {
-        buttonsUi.moveHandleButton.visibility = if (enabled) View.VISIBLE else View.GONE
-        buttonsUi.moveHandleButton.setOnLongClickListener { enabled }
-        buttonsUi.moveHandleButton.setOnTouchListener(if (enabled) listener else null)
-    }
-
     private val prefs = AppPrefs.getInstance()
 
     private val clipboardSuggestion = prefs.clipboard.clipboardSuggestion

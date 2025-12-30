@@ -151,6 +151,15 @@
     <string name="none">無</string>
     <string name="theme_migrated">主題已遷移至目前版本</string>
     <string name="keep_keyboard_letters_uppercase">鍵盤字母保持大寫</string>
+    <string name="floating_keyboard">浮動鍵盤</string>
+    <string name="floating_keyboard_on">浮動鍵盤：開啟</string>
+    <string name="floating_keyboard_off">浮動鍵盤：關閉</string>
+    <string name="floating_keyboard_permission_message">啟用浮動鍵盤需要懸浮窗權限，請在系統設定中允許。</string>
+    <string name="floating_keyboard_unavailable_message">僅在輸入啟用時才能切換浮動鍵盤。</string>
+    <string name="floating_keyboard_auto_landscape">橫屏時自動啟用浮動鍵盤</string>
+    <string name="floating_keyboard_scale">浮動鍵盤尺寸</string>
+    <string name="floating_keyboard_landscape_use_portrait_size">橫屏時使用直向尺寸</string>
+    <string name="move">移動</string>
     <string name="choose_input_method">選擇輸入法</string>
     <string name="edit_clipboard">編輯剪貼簿</string>
     <string name="clipboard_edit_text_hint">剪貼簿內容</string>

@@ -8,13 +8,10 @@ import android.content.Context
 import android.graphics.PixelFormat
 import android.graphics.Point
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
-import android.view.ViewConfiguration
 import androidx.core.view.doOnLayout
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
@@ -31,7 +28,6 @@ class FloatingKeyboardController(
 
     private var overlayView: InputView? = null
     private var layoutParams: WindowManager.LayoutParams? = null
-    private var handleListener: View.OnTouchListener? = null
 
     val inputView: InputView?
         get() = overlayView
@@ -39,10 +35,8 @@ class FloatingKeyboardController(
     fun show(theme: Theme = ThemeManager.activeTheme) {
         if (overlayView != null) return
         val params = createLayoutParams()
-        handleListener = createHandleTouchListener()
         val view = InputView(service, fcitx, theme).apply {
             reservePreeditLine(true)
-            setFloatingDragHandle(handleListener, true)
         }
         overlayView = view
         layoutParams = params
@@ -59,13 +53,12 @@ class FloatingKeyboardController(
                 // view might not be attached
             }
             view.handleEvents = false
-            view.setFloatingDragHandle(null, false)
         }
         overlayView = null
         layoutParams = null
-        handleListener = null
     }
 
+    @Suppress("DEPRECATION")
     private fun createLayoutParams(): WindowManager.LayoutParams {
         val metrics = service.resources.displayMetrics
         val width = (metrics.widthPixels * 0.85f).toInt()
@@ -128,49 +121,6 @@ class FloatingKeyboardController(
                     lp.y = bounded.y
                     windowManager.updateViewLayout(view, lp)
                 }
-            }
-        }
-    }
-
-    private fun createHandleTouchListener(): View.OnTouchListener {
-        val handler = Handler(Looper.getMainLooper())
-        var initialX = 0
-        var initialY = 0
-        var touchStartX = 0f
-        var touchStartY = 0f
-        var dragging = false
-        val longPressTimeout = ViewConfiguration.getLongPressTimeout().toLong()
-        return View.OnTouchListener { _, event ->
-            val lp = layoutParams ?: return@OnTouchListener false
-            when (event.actionMasked) {
-                MotionEvent.ACTION_DOWN -> {
-                    initialX = lp.x
-                    initialY = lp.y
-                    touchStartX = event.rawX
-                    touchStartY = event.rawY
-                    dragging = false
-                    handler.postDelayed({ dragging = true }, longPressTimeout)
-                    true
-                }
-                MotionEvent.ACTION_MOVE -> {
-                    if (!dragging) return@OnTouchListener false
-                    val dx = (event.rawX - touchStartX).toInt()
-                    val dy = (event.rawY - touchStartY).toInt()
-                    val targetX = initialX + dx
-                    val targetY = initialY + dy
-                    val view = overlayView ?: return@OnTouchListener false
-                    val bounded = boundToScreen(targetX, targetY, view)
-                    lp.x = bounded.x
-                    lp.y = bounded.y
-                    windowManager.updateViewLayout(view, lp)
-                    true
-                }
-                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                    handler.removeCallbacksAndMessages(null)
-                    dragging = false
-                    true
-                }
-                else -> false
             }
         }
     }

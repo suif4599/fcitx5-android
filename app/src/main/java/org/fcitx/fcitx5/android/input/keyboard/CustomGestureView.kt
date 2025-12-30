@@ -54,10 +54,13 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
     private val externalScope = findViewTreeLifecycleOwner()?.lifecycleScope
         ?: (context as? FcitxInputMethodService)?.lifecycleScope
 
-    private val gestureScope: CoroutineScope = externalScope
-        ?: CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
+    private var ownedScope: CoroutineScope? = null
 
-    private val ownsScope = externalScope == null
+    private val gestureScope: CoroutineScope
+        get() = externalScope ?: ownedScope?.takeIf { it.isActive }
+        ?: CoroutineScope(Dispatchers.Main.immediate + SupervisorJob()).also {
+            ownedScope = it
+        }
 
     @Volatile
     private var touchMovedOutside = false
@@ -270,9 +273,8 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        if (ownsScope) {
-            gestureScope.cancel()
-        }
+        ownedScope?.cancel()
+        ownedScope = null
     }
 
     private fun consumeSwipe(current: Float, axis: SwipeAxis): Int {
