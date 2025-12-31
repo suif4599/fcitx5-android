@@ -175,6 +175,8 @@
     <string name="disable_addon_warn_optdep">禁用%1$s中的某些功能</string>
     <string name="disable_addon_warn_confirm">确定要禁用它吗？</string>
     <string name="swipe_symbol_behavior">划动输入标点符号及数字</string>
+    <string name="tab_long_press_text">Tab 键长按文本</string>
+    <string name="tab_long_press_text_invalid">仅允许键盘上已有的按键。</string>
     <string name="swipe_down">下划</string>
     <string name="swipe_up">上划</string>
     <string name="disabled">禁用</string>

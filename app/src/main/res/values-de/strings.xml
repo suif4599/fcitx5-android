@@ -170,4 +170,6 @@
     <string name="floating_keyboard_scale">Größe der schwebenden Tastatur</string>
     <string name="floating_keyboard_landscape_use_portrait_size">Im Querformat Hochformatgröße verwenden</string>
     <string name="move">Verschieben</string>
+    <string name="tab_long_press_text">Text bei langem Druck auf die Tab-Taste</string>
+    <string name="tab_long_press_text_invalid">Nur auf der Tastatur vorhandene Tasten sind erlaubt.</string>
     </resources>

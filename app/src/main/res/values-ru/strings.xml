@@ -175,6 +175,8 @@
     <string name="disable_addon_warn_optdep">Отключить некоторые функции в %1$s</string>
     <string name="disable_addon_warn_confirm">Вы уверены, что хотите отключить?</string>
     <string name="swipe_symbol_behavior">Проведите пальцем, чтобы ввести знаки препинания и цифры</string>
+    <string name="tab_long_press_text">Текст при долгом нажатии Tab</string>
+    <string name="tab_long_press_text_invalid">Разрешены только клавиши, присутствующие на клавиатуре.</string>
     <string name="swipe_down">Провести вниз</string>
     <string name="swipe_up">Провести вверх</string>
     <string name="disabled">Отключено</string>

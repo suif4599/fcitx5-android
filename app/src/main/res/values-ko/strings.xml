@@ -100,4 +100,6 @@
     <string name="floating_keyboard_scale">플로팅 키보드 크기</string>
     <string name="floating_keyboard_landscape_use_portrait_size">가로 화면에서 세로 크기 사용</string>
     <string name="move">이동</string>
+    <string name="tab_long_press_text">Tab 키 길게 누를 때 텍스트</string>
+    <string name="tab_long_press_text_invalid">키보드에 존재하는 키만 사용할 수 있습니다.</string>
     </resources>

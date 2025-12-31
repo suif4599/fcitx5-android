@@ -60,7 +60,12 @@ abstract class ManagedPreferenceUi<T : Preference>(
             isIconSpaceReserved = false
             isSingleLineTitle = false
             if (summary == null) {
-                summaryProvider = EditTextPreference.SimpleSummaryProvider.getInstance()
+                // Show persisted value (or the default) instead of the framework's "Not set"
+                summaryProvider = Preference.SummaryProvider<EditTextPreference> { pref ->
+                    val persisted = pref.text?.takeIf { it.isNotEmpty() }
+                        ?: pref.sharedPreferences?.getString(pref.key, null)
+                    persisted?.takeIf { it.isNotEmpty() } ?: defaultValue
+                }
             }
             setDefaultValue(defaultValue)
             setTitle(this@EditTextString.title)

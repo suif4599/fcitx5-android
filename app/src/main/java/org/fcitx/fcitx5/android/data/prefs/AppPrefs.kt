@@ -453,16 +453,11 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         private var instance: AppPrefs? = null
 
         const val TAB_LONG_PRESS_DEFAULT = "``"
-        private val tabLongPressAllowedChars: Set<Char> = buildSet {
-            addAll('a'..'z')
-            addAll('A'..'Z')
-            addAll('0'..'9')
-            "`~!@#$%^&*()-_=+[]{};:'\",.<>/?\\| ".forEach { add(it) }
-        }
-
         fun sanitizeTabLongPressText(raw: String): String {
-            val candidate = if (raw.isEmpty()) TAB_LONG_PRESS_DEFAULT else raw
-            return if (candidate.all { it in tabLongPressAllowedChars }) candidate else TAB_LONG_PRESS_DEFAULT
+            if (raw.isEmpty()) return TAB_LONG_PRESS_DEFAULT
+            // Accept any non-control characters so users can set custom labels (including non-ASCII)
+            val cleaned = raw.filter { !it.isISOControl() }
+            return cleaned.ifEmpty { TAB_LONG_PRESS_DEFAULT }
         }
 
         /**

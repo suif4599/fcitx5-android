@@ -118,6 +118,8 @@
     <string name="button_sound_volume">Volumen de sonido al presionar teclas</string>
     <string name="disable_it">Desactivarlo</string>
     <string name="export_user_data">Exportar datos de uso</string>
+        <string name="tab_long_press_text">Texto al mantener pulsada la tecla Tab</string>
+        <string name="tab_long_press_text_invalid">Solo se permiten teclas que existan en el teclado.</string>
     <string name="import_user_data">Importar datos de uso</string>
     <string name="restart_channel">Reinicio de aplicación</string>
     <string name="restart_notify_msg">Se reinició la aplicación; pulse aquí para abrir</string>
