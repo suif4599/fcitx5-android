@@ -109,7 +109,8 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     private fun detachCurrentLayout() {
         currentKeyboard?.also {
             it.onDetach()
-            keyboardView.removeView(it)
+            // Always detach from the floating container; keyboards are added there
+            floatingContainer.removeView(it)
             it.keyActionListener = null
             it.popupActionListener = null
         }
