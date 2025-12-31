@@ -70,6 +70,11 @@ class IdleUi(
         rotation = menuButtonRotation
     }
 
+    val dragHandle = ToolButton(ctx, R.drawable.ic_baseline_drag_handle_24, theme).apply {
+        contentDescription = ctx.getString(R.string.move)
+        visibility = View.GONE
+    }
+
     val hideKeyboardButton = ToolButton(ctx, R.drawable.ic_baseline_arrow_drop_down_24, theme)
 
     val emptyBar = Space(ctx)
@@ -114,16 +119,26 @@ class IdleUi(
             startOfParent()
             centerVertically()
         })
+        add(dragHandle, lParams(size, size) {
+            after(menuButton)
+            centerVertically()
+        })
         add(hideKeyboardButton, lParams(size, size) {
             endOfParent()
             centerVertically()
         })
         add(animator, lParams(matchConstraints, matchParent) {
-            after(menuButton)
+            after(dragHandle)
             before(hideKeyboardButton)
             centerVertically()
         })
         add(numberRow, lParams(matchParent, matchParent))
+    }
+
+    fun setFloatingDragHandle(enabled: Boolean, listener: View.OnTouchListener?) {
+        dragHandle.visibility = if (enabled) View.VISIBLE else View.GONE
+        dragHandle.setOnTouchListener(if (enabled) listener else null)
+        dragHandle.isClickable = false
     }
 
     fun privateMode(activate: Boolean = true) {

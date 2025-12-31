@@ -27,6 +27,7 @@ import splitties.views.dsl.core.add
 import splitties.views.dsl.core.frameLayout
 import splitties.views.dsl.core.lParams
 import java.util.LinkedList
+import kotlin.math.roundToInt
 
 class PopupComponent :
     UniqueComponent<PopupComponent>(), Dependent, ManagedHandler by managedHandler() {
@@ -60,7 +61,9 @@ class PopupComponent :
     private val hideThreshold = 100L
 
     private val rootLocation = intArrayOf(0, 0)
-    private val rootBounds: Rect = Rect()
+    private var rootWindowX = 0
+    private var rootWindowY = 0
+    private val rootBoundsLocal: Rect = Rect()
 
     val root by lazy {
         context.frameLayout {
@@ -71,14 +74,17 @@ class PopupComponent :
 
             addOnLayoutChangeListener { v, left, top, right, bottom, _, _, _, _ ->
                 val (x, y) = rootLocation.also { v.getLocationInWindow(it) }
+                rootWindowX = x
+                rootWindowY = y
                 val width = right - left
                 val height = bottom - top
-                rootBounds.set(x, y, x + width, y + height)
+                rootBoundsLocal.set(0, 0, width, height)
             }
         }
     }
 
     private fun showPopup(viewId: Int, content: String, bounds: Rect) {
+        val localBounds = bounds.toLocal()
         showingEntryUi[viewId]?.apply {
             dismissJobs[viewId]?.also {
                 dismissJobs.remove(viewId)?.cancel()
@@ -95,8 +101,8 @@ class PopupComponent :
         root.apply {
             add(popup.root, lParams(popupWidth, popupHeight) {
                 // align popup bottom with key border bottom [^1]
-                topMargin = bounds.bottom - popupHeight - keyBottomMargin
-                leftMargin = (bounds.left + bounds.right - popupWidth) / 2
+                topMargin = localBounds.bottom - popupHeight - keyBottomMargin
+                leftMargin = (localBounds.left + localBounds.right - popupWidth) / 2
             })
         }
         showingEntryUi[viewId] = popup
@@ -111,8 +117,9 @@ class PopupComponent :
             ?: EmojiModifier.produceSkinTones(keyboard.label)
             ?: return
         // clear popup preview text         OR create empty popup preview
-        showingEntryUi[viewId]?.setText("") ?: showPopup(viewId, "", bounds)
-        reallyShowKeyboard(viewId, keys, bounds)
+        val localBounds = bounds.toLocal()
+        showingEntryUi[viewId]?.setText("") ?: showPopup(viewId, "", localBounds)
+        reallyShowKeyboard(viewId, keys, localBounds)
     }
 
     private fun reallyShowKeyboard(viewId: Int, keys: Array<String>, bounds: Rect) {
@@ -122,7 +129,7 @@ class PopupComponent :
         val keyboardUi = PopupKeyboardUi(
             context,
             theme,
-            rootBounds,
+            rootBoundsLocal,
             bounds,
             { dismissPopup(viewId) },
             popupRadius,
@@ -140,11 +147,12 @@ class PopupComponent :
         showingEntryUi[viewId]?.let {
             dismissPopupEntry(viewId, it)
         }
+        val localBounds = bounds.toLocal()
         val menuUi = PopupMenuUi(
             context,
             theme,
-            rootBounds,
-            bounds,
+            rootBoundsLocal,
+            localBounds,
             { dismissPopup(viewId) },
             menu.items,
         )
@@ -154,8 +162,8 @@ class PopupComponent :
     private fun showPopupContainer(viewId: Int, ui: PopupContainerUi) {
         root.apply {
             add(ui.root, lParams {
-                leftMargin = ui.triggerBounds.left + ui.offsetX - rootBounds.left
-                topMargin = ui.triggerBounds.top + ui.offsetY - rootBounds.top
+                leftMargin = ui.triggerBounds.left + ui.offsetX
+                topMargin = ui.triggerBounds.top + ui.offsetY
             })
         }
         showingContainerUi[viewId] = ui
@@ -229,5 +237,15 @@ class PopupComponent :
                 is PopupAction.TriggerAction -> outAction = triggerFocused(viewId)
             }
         }
+    }
+
+    private fun Rect.toLocal(): Rect {
+        val scale = (root.parent as? View)?.scaleX ?: 1f
+        if (scale == 0f) return this
+        val dx = ((left - rootWindowX) / scale).roundToInt()
+        val dy = ((top - rootWindowY) / scale).roundToInt()
+        val rx = ((right - rootWindowX) / scale).roundToInt()
+        val by = ((bottom - rootWindowY) / scale).roundToInt()
+        return Rect(dx, dy, rx, by)
     }
 }

@@ -10,6 +10,7 @@ import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import org.fcitx.fcitx5.android.ui.main.modified.MySwitchPreference
+import org.fcitx.fcitx5.android.ui.main.settings.DialogSeekBarFloatPreference
 import org.fcitx.fcitx5.android.ui.main.settings.DialogSeekBarPreference
 import org.fcitx.fcitx5.android.ui.main.settings.EditTextIntPreference
 import org.fcitx.fcitx5.android.ui.main.settings.TwinSeekBarPreference
@@ -155,6 +156,35 @@ abstract class ManagedPreferenceUi<T : Preference>(
             max = this@SeekBarInt.max
             unit = this@SeekBarInt.unit
             step = this@SeekBarInt.step
+        }
+    }
+
+    class SeekBarFloat(
+        @StringRes
+        val title: Int,
+        key: String,
+        val defaultValue: Float,
+        val min: Float,
+        val max: Float,
+        val step: Float = 0.01f,
+        val unit: String = "",
+        @StringRes
+        val defaultLabel: Int? = null,
+        enableUiOn: (() -> Boolean)? = null
+    ) : ManagedPreferenceUi<DialogSeekBarFloatPreference>(key, enableUiOn) {
+        override fun createUi(context: Context) = DialogSeekBarFloatPreference(context).apply {
+            key = this@SeekBarFloat.key
+            isIconSpaceReserved = false
+            isSingleLineTitle = false
+            summaryProvider = DialogSeekBarFloatPreference.SimpleSummaryProvider
+            this@SeekBarFloat.defaultLabel?.let { defaultLabel = context.getString(it) }
+            setDefaultValue(this@SeekBarFloat.defaultValue)
+            setTitle(this@SeekBarFloat.title)
+            setDialogTitle(this@SeekBarFloat.title)
+            min = this@SeekBarFloat.min
+            max = this@SeekBarFloat.max
+            step = this@SeekBarFloat.step
+            unit = this@SeekBarFloat.unit
         }
     }
 

@@ -157,7 +157,7 @@
     <string name="floating_keyboard_permission_message">启用悬浮键盘需要悬浮窗权限，请在系统设置中允许。</string>
     <string name="floating_keyboard_unavailable_message">仅在输入激活时才能切换悬浮键盘。</string>
     <string name="floating_keyboard_auto_landscape">横屏时自动启用悬浮键盘</string>
-    <string name="floating_keyboard_scale">悬浮键盘尺寸</string>
+    <string name="floating_keyboard_scale">悬浮键盘缩放</string>
     <string name="floating_keyboard_landscape_use_portrait_size">横屏时使用竖屏尺寸</string>
     <string name="move">移动</string>
     <string name="choose_input_method">选择输入法</string>

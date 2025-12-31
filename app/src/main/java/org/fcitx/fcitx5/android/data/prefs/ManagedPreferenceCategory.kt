@@ -116,6 +116,34 @@ abstract class ManagedPreferenceCategory(
         return pref
     }
 
+    protected fun float(
+        @StringRes title: Int,
+        key: String,
+        defaultValue: Float,
+        min: Float,
+        max: Float,
+        step: Float = 0.01f,
+        unit: String = "",
+        @StringRes defaultLabel: Int? = null,
+        enableUiOn: (() -> Boolean)? = null
+    ): ManagedPreference.PFloat {
+        val pref = ManagedPreference.PFloat(sharedPreferences, key, defaultValue)
+        val ui = ManagedPreferenceUi.SeekBarFloat(
+            title,
+            key,
+            defaultValue,
+            min,
+            max,
+            step,
+            unit,
+            defaultLabel,
+            enableUiOn
+        )
+        pref.register()
+        ui.registerUi()
+        return pref
+    }
+
     protected fun twinInt(
         @StringRes
         title: Int,

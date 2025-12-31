@@ -339,6 +339,10 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
         view.displayedChild = index
     }
 
+    fun setFloatingDragHandle(enabled: Boolean, listener: View.OnTouchListener?) {
+        idleUi.setFloatingDragHandle(enabled, listener)
+    }
+
     override val view by lazy {
         ViewAnimator(context).apply {
             backgroundColor =

@@ -185,6 +185,7 @@ abstract class KeyView(ctx: Context, val theme: Theme, val def: KeyDef.Appearanc
 
     fun updateBounds() {
         val (x, y) = cachedLocation.also { appearanceView.getLocationInWindow(it) }
+        // getLocationInWindow already returns coordinates with view transformations applied
         cachedBounds.set(x, y, x + appearanceView.width, y + appearanceView.height)
         boundsValid = true
     }

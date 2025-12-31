@@ -63,6 +63,8 @@ import splitties.views.dsl.core.view
 import splitties.views.dsl.core.withTheme
 import splitties.views.dsl.core.wrapContent
 import splitties.views.imageDrawable
+import android.graphics.Matrix
+import android.view.MotionEvent
 
 @SuppressLint("ViewConstructor")
 class InputView(
@@ -109,6 +111,8 @@ class InputView(
     private val emojiPicker = emojiPicker()
     private val emoticonPicker = emoticonPicker()
 
+    private var floatingScale: Float = 1f
+
     private fun setupScope() {
         scope += this@InputView.wrapToUniqueComponent()
         scope += service.wrapToUniqueComponent()
@@ -154,7 +158,7 @@ class InputView(
                 Configuration.ORIENTATION_LANDSCAPE -> keyboardHeightPercentLandscape
                 else -> keyboardHeightPercent
             }.getValue()
-            return resources.displayMetrics.heightPixels * percent / 100
+            return (resources.displayMetrics.heightPixels * percent / 100 * floatingScale).toInt()
         }
 
     private val keyboardSidePaddingPx: Int
@@ -163,7 +167,7 @@ class InputView(
                 Configuration.ORIENTATION_LANDSCAPE -> keyboardSidePaddingLandscape
                 else -> keyboardSidePadding
             }.getValue()
-            return dp(value)
+            return (dp(value) * floatingScale).toInt()
         }
 
     private val keyboardBottomPaddingPx: Int
@@ -172,7 +176,7 @@ class InputView(
                 Configuration.ORIENTATION_LANDSCAPE -> keyboardBottomPaddingLandscape
                 else -> keyboardBottomPadding
             }.getValue()
-            return dp(value)
+            return (dp(value) * floatingScale).toInt()
         }
 
     @Keep
@@ -262,6 +266,30 @@ class InputView(
 
     fun reservePreeditLine(always: Boolean) {
         preedit.setAlwaysReserveLine(always)
+    }
+
+    fun setFloatingScale(scale: Float) {
+        val clamped = scale.coerceIn(0.2f, 1.0f)
+        if (clamped == floatingScale) return
+        floatingScale = clamped
+        updateKeyboardSize()
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        val sx = scaleX
+        val sy = scaleY
+        if (sx == 1f && sy == 1f) return super.dispatchTouchEvent(ev)
+        val adjusted = MotionEvent.obtain(ev)
+        val m = Matrix()
+        m.setScale(1f / sx, 1f / sy, 0f, 0f)
+        adjusted.transform(m)
+        val handled = super.dispatchTouchEvent(adjusted)
+        adjusted.recycle()
+        return handled
+    }
+
+    fun configureFloatingDrag(enabled: Boolean, listener: View.OnTouchListener?) {
+        kawaiiBar.setFloatingDragHandle(enabled, listener)
     }
 
     private fun updateKeyboardSize() {
